@@ -17,6 +17,7 @@
   "plugins": [
     "@typescript-eslint"
   ],
+  "settings": { "import/resolver": { "node": { "extensions": [".js", ".ts"] } } },
   "rules": {
     "jsx-a11y/label-has-associated-control": "off",
     "jsx-a11y/anchor-is-valid": "off",

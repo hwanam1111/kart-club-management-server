@@ -12,6 +12,8 @@ import helmet from 'helmet';
 import redis from 'redis';
 import connectRedis from 'connect-redis';
 
+import routes from './routes/api';
+
 dotenv.config();
 
 const RedisStore = connectRedis(session);
@@ -81,5 +83,8 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(routes);
 
-http.createServer(app).listen(SERVER_POST);
+http.createServer(app).listen(SERVER_POST, () => {
+  console.log('Start server');
+});
