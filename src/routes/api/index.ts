@@ -4,6 +4,6 @@ import userRouter from './v1/user';
 
 const app = express();
 
-app.use('/v1/user', userRouter);
+app.use('/v1/users', userRouter);
 
 export default app;
