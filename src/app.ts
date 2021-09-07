@@ -12,8 +12,10 @@ import helmet from 'helmet';
 import redis from 'redis';
 import connectRedis from 'connect-redis';
 
+import passportConfig from './passport';
 import routes from './routes/api';
 
+passportConfig();
 dotenv.config();
 
 const RedisStore = connectRedis(session);

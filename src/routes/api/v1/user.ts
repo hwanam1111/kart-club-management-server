@@ -1,7 +1,8 @@
 import express from 'express';
+import passport from 'passport';
+import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
 import request from 'request-promise-native';
-import bcrypt from 'bcryptjs';
 
 import mysqlConfig from '../../mysql/config';
 import { selectOne } from '../../lib/mysqlConnectionPool';
@@ -176,24 +177,89 @@ router.post('/sign-up', async (req: express.Request, res: express.Response, next
   }
 });
 
+router.post('/login', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+      const userIp = req.connection.remoteAddress.replace('::ffff:', '');
+      const userAgent = req.headers['user-agent'];
+      const { email } = req.body;
+
+      if (err) {
+        console.error('Authenticate error: ', err);
+        return next(err);
+      }
+
+      if (info) {
+        const addLoginFailureLogSQL = `INSERT INTO TB_USERS_LOGIN_LOGS (
+          enterdEmail, userIp, userAgent, loginResult, failureReason, classification, createdAt
+        ) VALUES (
+          '${email}', '${userIp}', '${userAgent}', false, '${info.reason}', 'menual', NOW()
+        )`;
+        pool.execute(addLoginFailureLogSQL);
+
+        return res.status(401).json({
+          data: 'login-failure',
+          message: '이메일이나 비밀번호가 잘못 입력되었습니다.',
+        });
+      }
+
+      return req.login(user, async (loginError) => {
+        if (loginError) {
+          console.error('Passport login error.', loginError);
+          return next(loginError);
+        }
+
+        const addLoginFailureLogSQL = `INSERT INTO TB_USERS_LOGIN_LOGS (
+          enterdEmail, userIp, userAgent, loginResult, classification, createdAt
+        ) VALUES (
+          '${user.email}', '${userIp}', '${userAgent}', true, 'menual', NOW()
+        )`;
+        pool.execute(addLoginFailureLogSQL);
+
+        return res.status(201).json({
+          data: 'login-success',
+          message: '로그인이 완료되었습니다.',
+        });
+      });
+    })(req, res, next);
+
+    return null;
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.get('/my', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
+    if (req.user) {
+      if (req.user.isWithdrawal === 1) {
+        req.logout();
+        req.session.destroy(null);
+
+        return res.status(200).json({
+          data: 'no-user-info',
+          message: '로그인이 되어있지 않습니다.',
+        });
+      }
+
+      const getUserInfoSQL = `
+        SELECT
+        id, kartRiderAccessId, email, clubId, nickname, profileImageUri, rating, isWithdrawal
+        FROM TB_USERS
+        WHERE id = ${req.user.id}
+      `;
+      const userInfoResult = await selectOne(getUserInfoSQL);
+
+      return res.status(200).json({
+        data: userInfoResult,
+        message: '내 정보를 성공적으로 불러왔습니다.',
+      });
+    }
+
     return res.status(200).json({
       data: 'no-user-info',
       message: '로그인이 되어있지 않습니다.',
     });
-
-    // return res.status(200).json({
-    //   data: {
-    //     id: 1,
-    //     email: 'email',
-    //     nickname: 'nickname',
-    //     rating: 'rating',
-    //     profileImageUri: 'https://avatars.githubusercontent.com/u/23207057?v=4',
-    //     clubId: 1,
-    //   },
-    //   message: '내 정보를 성공적으로 불러왔습니다.',
-    // });
   } catch (err) {
     return next(err);
   }

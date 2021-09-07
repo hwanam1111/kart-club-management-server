@@ -3,7 +3,8 @@
     "target": "es5",
     "module": "commonjs",
     "outDir": "dist/",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./src/types/"]
   },
   "include": ["src/*.ts"]
 }
