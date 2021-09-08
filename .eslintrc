@@ -43,6 +43,8 @@
     "@typescript-eslint/no-explicit-any": "off",
     "no-param-reassign": "off",
     "no-useless-escape": "off",
-    "no-console": "off"
+    "no-console": "off",
+    "no-useless-constructor": "off",
+    "class-methods-use-this": "off"
   }
 }

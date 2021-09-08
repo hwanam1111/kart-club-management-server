@@ -2,7 +2,7 @@ import passport from 'passport';
 import passportLocal from 'passport-local';
 import bcrypt from 'bcryptjs';
 
-import { selectOne } from '../routes/lib/mysqlConnectionPool';
+import { selectOne } from '../lib/mysqlConnectionPool';
 
 const LocalStrategy = passportLocal.Strategy;
 

@@ -1,7 +1,7 @@
 import passport from 'passport';
 import local from './local';
 
-import { selectOne } from '../routes/lib/mysqlConnectionPool';
+import { selectOne } from '../lib/mysqlConnectionPool';
 
 export default function passportConfig() {
   passport.serializeUser((user: {
