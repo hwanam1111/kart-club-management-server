@@ -77,4 +77,19 @@ router.post('/login', async (req: express.Request, res: express.Response, next: 
   }
 });
 
+router.post('/logout', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    req.logout();
+    req.session.destroy(null);
+
+    return res.status(200).json({
+      data: 'logout-success',
+      message: '로그아웃이 완료되었습니다.',
+    });
+  } catch (err) {
+    logger.error(`[${req.method}] '${req.originalUrl}'`, err);
+    return next(err);
+  }
+});
+
 export default router;
