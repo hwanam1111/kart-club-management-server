@@ -16,16 +16,16 @@ export default function local() {
       const userInfoResult = await selectOne(getUserInfoSQL);
 
       if (!userInfoResult) {
-        return done(null, false, { reason: '존재하지 않는 이메일입니다.' });
-      }
-
-      if (userInfoResult.isWithdrawal === 1) {
-        return done(null, false, { reason: '탈퇴한 회원입니다.' });
+        return done(null, false, { reason: '이메일이나 비밀번호가 잘못 입력되었습니다.' });
       }
 
       const passwordEqualResult = await bcrypt.compare(password, userInfoResult.password);
       if (!passwordEqualResult) {
-        return done(null, false, { reason: '비밀번호가 틀렸습니다.' });
+        return done(null, false, { reason: '이메일이나 비밀번호가 잘못 입력되었습니다.' });
+      }
+
+      if (userInfoResult.isWithdrawal === 1) {
+        return done(null, false, { reason: '탈퇴한 회원입니다.' });
       }
 
       return done(null, userInfoResult);

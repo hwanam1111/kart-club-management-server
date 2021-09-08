@@ -75,7 +75,7 @@ router.post('/login', async (req: express.Request, res: express.Response, next: 
 
         return res.status(401).json({
           data: 'login-failure',
-          message: '이메일이나 비밀번호가 잘못 입력되었습니다.',
+          message: info.reason,
         });
       }
 
