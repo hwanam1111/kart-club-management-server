@@ -6,7 +6,7 @@ import AuthModels from '../models/auth';
 import UserModels from '../models/user';
 
 @Service()
-export default class UserService {
+export default class AuthService {
   constructor(
     private authModels = new AuthModels(),
     private userModels = new UserModels(),

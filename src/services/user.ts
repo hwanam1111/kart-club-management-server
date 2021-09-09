@@ -91,7 +91,16 @@ export default class UserService {
 
   public async getMyInformationService(req: express.Request): Promise<{
     httpStatusCode: number,
-    data: any,
+    data: {
+      id?: number,
+      kartRiderAccessId?: string,
+      email?: string,
+      clubId?: number,
+      nickname?: string,
+      profileImageUri?: string,
+      rating?: string,
+      isWithdrawal?: number
+    } | string,
     message: string
   }> {
     try {

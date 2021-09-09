@@ -5,7 +5,7 @@ import logger from '../../config/winston';
 
 const pool = mysql.createPool(mysqlConfig);
 
-export default class UserModels {
+export default class AuthModels {
   public async signUp(data: {email: string, hashedPassword: string, nickname: string, accessId: string }): Promise<void> {
     try {
       const { email, hashedPassword, nickname, accessId } = data;
