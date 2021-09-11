@@ -3,13 +3,13 @@ import bcrypt from 'bcryptjs';
 
 import logger from '../../config/winston';
 import AuthModels from '../models/auth';
-import UserModels from '../models/user';
+import UsersModels from '../models/users';
 
 @Service()
 export default class AuthService {
   constructor(
     private authModels = new AuthModels(),
-    private userModels = new UserModels(),
+    private usersModels = new UsersModels(),
   ) { }
 
   public async signUpService(data: {
@@ -80,7 +80,7 @@ export default class AuthService {
         };
       }
 
-      const existingUser = await this.userModels.existingUserCheck(email, nickname);
+      const existingUser = await this.usersModels.existingUserCheck(email, nickname);
       if (existingUser) {
         return {
           httpStatusCode: 403,

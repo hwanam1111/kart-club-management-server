@@ -3,11 +3,11 @@ import { Service } from 'typedi';
 import request from 'request-promise-native';
 
 import logger from '../../config/winston';
-import UserModels from '../models/user';
+import UsersModels from '../models/users';
 
 @Service()
 export default class UserService {
-  constructor(private userModels = new UserModels()) {}
+  constructor(private usersModels = new UsersModels()) {}
 
   public async checkEmailDuplicateService(email: string): Promise<{httpStatusCode: number, data: string, message: string}> {
     try {
@@ -21,7 +21,7 @@ export default class UserService {
         };
       }
 
-      const emailDuplicate = await this.userModels.emailDuplicateCheck(email);
+      const emailDuplicate = await this.usersModels.emailDuplicateCheck(email);
       if (emailDuplicate) {
         return {
           httpStatusCode: 200,
@@ -116,7 +116,7 @@ export default class UserService {
           };
         }
 
-        const myInformation = await this.userModels.getMyInformation(req.user.id);
+        const myInformation = await this.usersModels.getMyInformation(req.user.id);
 
         return {
           httpStatusCode: 200,

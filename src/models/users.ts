@@ -6,7 +6,7 @@ import logger from '../../config/winston';
 
 const pool = mysql.createPool(mysqlConfig);
 
-export default class UserModels {
+export default class UsersModels {
   public async emailDuplicateCheck(email: string): Promise<{ id: number } | undefined> {
     try {
       const emailDuplicateCheckSQL = `SELECT id FROM TB_USERS WHERE email = '${email}'`;
@@ -14,7 +14,7 @@ export default class UserModels {
 
       return emailDuplicateCheckResult;
     } catch (err) {
-      logger.error('UserModels duplicateEmailCheck()', err);
+      logger.error('UsersModels duplicateEmailCheck()', err);
       throw err;
     }
   }
@@ -26,7 +26,7 @@ export default class UserModels {
 
       return existingUserCheckResult;
     } catch (err) {
-      logger.error('UserModels existingUserCheck()', err);
+      logger.error('UsersModels existingUserCheck()', err);
       throw err;
     }
   }
@@ -42,7 +42,7 @@ export default class UserModels {
 
       await pool.execute(addUserSQL);
     } catch (err) {
-      logger.error('UserModels signUp()', err);
+      logger.error('UsersModels signUp()', err);
       throw err;
     }
   }
@@ -68,7 +68,7 @@ export default class UserModels {
 
       return userInfoResult;
     } catch (err) {
-      logger.error('UserModels getMyInformation()', err);
+      logger.error('UsersModels getMyInformation()', err);
       throw err;
     }
   }
