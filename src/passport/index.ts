@@ -1,6 +1,6 @@
 import passport from 'passport';
 import local from './local';
-
+import logger from '../../config/winston';
 import { selectOne } from '../lib/mysqlConnectionPool';
 
 export default function passportConfig() {
@@ -25,7 +25,7 @@ export default function passportConfig() {
 
       done(null, userInfoResult);
     } catch (error) {
-      console.error('Passport deserializeUser error: ', error);
+      logger.error('Passport deserializeUser error: ', error);
       done(error);
     }
   });

@@ -12,6 +12,7 @@ import helmet from 'helmet';
 import redis from 'redis';
 import connectRedis from 'connect-redis';
 
+import logger from '../config/winston';
 import passportConfig from './passport';
 import routes from './routes/api';
 
@@ -80,5 +81,5 @@ app.use(passport.session());
 app.use(routes);
 
 http.createServer(app).listen(SERVER_POST, () => {
-  console.log('Start server');
+  logger.info('Start server');
 });
