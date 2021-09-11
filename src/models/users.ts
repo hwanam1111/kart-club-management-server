@@ -3,6 +3,7 @@ import mysql from 'mysql2/promise';
 import mysqlConfig from '../mysql/config';
 import { selectOne } from '../lib/mysqlConnectionPool';
 import logger from '../../config/winston';
+import { UserType } from '../types/usersType';
 
 const pool = mysql.createPool(mysqlConfig);
 
@@ -47,16 +48,7 @@ export default class UsersModels {
     }
   }
 
-  public async getMyInformation(userId: number): Promise<{
-    id?: number,
-    kartRiderAccessId?: string,
-    email?: string,
-    clubId?: number,
-    nickname?: string,
-    profileImageUri?: string,
-    rating?: string,
-    isWithdrawal?: number
-  }> {
+  public async getMyInformation(userId: number): Promise<UserType> {
     try {
       const getUserInfoSQL = `
           SELECT

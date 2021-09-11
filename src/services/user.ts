@@ -1,6 +1,7 @@
 import express from 'express';
 import { Service } from 'typedi';
 import request from 'request-promise-native';
+import { UserType } from '../types/usersType';
 
 import logger from '../../config/winston';
 import UsersModels from '../models/users';
@@ -91,16 +92,7 @@ export default class UserService {
 
   public async getMyInformationService(req: express.Request): Promise<{
     httpStatusCode: number,
-    data: {
-      id?: number,
-      kartRiderAccessId?: string,
-      email?: string,
-      clubId?: number,
-      nickname?: string,
-      profileImageUri?: string,
-      rating?: string,
-      isWithdrawal?: number
-    } | string,
+    data: UserType | string,
     message: string
   }> {
     try {
