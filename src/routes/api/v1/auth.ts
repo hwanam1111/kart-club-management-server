@@ -4,12 +4,13 @@ import passport from 'passport';
 import { Container } from 'typedi';
 
 import logger from '../../../../config/winston';
-
+import isLoggedIn from '../../middlewares/isLoggedIn';
+import isNotLoggedIn from '../../middlewares/isNotLoggedIn';
 import AuthService from '../../../services/auth';
 
 const router = express.Router();
 
-router.post('/sign-up', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/sign-up', isNotLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const authServiceInstance = Container.get(AuthService);
     const { httpStatusCode, data, message } = await authServiceInstance.signUpService(req.body);
@@ -23,7 +24,7 @@ router.post('/sign-up', async (req: express.Request, res: express.Response, next
   }
 });
 
-router.post('/login', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/login', isNotLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     passport.authenticate('local', async (err: any, user: any, info: any) => {
       if (err) {
@@ -77,7 +78,7 @@ router.post('/login', async (req: express.Request, res: express.Response, next: 
   }
 });
 
-router.post('/logout', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/logout', isLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     req.logout();
     req.session.destroy(null);

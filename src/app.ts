@@ -22,14 +22,6 @@ const RedisStore = connectRedis(session);
 const { COOKIE_SECRET, NODE_ENV, REDIS_HOST, REDIS_DB, REDIS_PORT, SERVER_POST } = process.env;
 const app = express();
 
-app.use(morgan('dev'));
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  }),
-);
-
 if (NODE_ENV === 'production') {
   app.enable('trust proxy');
   app.use(morgan('combined'));

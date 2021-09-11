@@ -3,7 +3,7 @@ import express from 'express';
 import { Container } from 'typedi';
 
 import logger from '../../../../config/winston';
-
+import isLoggedIn from '../../middlewares/isLoggedIn';
 import UsersService from '../../../services/user';
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.get('/verify/nickname/:nickname', async (req: express.Request, res: expre
   }
 });
 
-router.get('/my', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/my', isLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const usersServiceInstance = Container.get(UsersService);
     const { httpStatusCode, data, message } = await usersServiceInstance.getMyInformationService(req);
