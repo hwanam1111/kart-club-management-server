@@ -16,5 +16,5 @@ export const selectOne = async (sql: string) => {
 export const selectAll = async (sql: string) => {
   const result = await pool.execute(sql);
 
-  return result[0];
+  return JSON.parse(JSON.stringify(result[0]));
 };
