@@ -10,6 +10,20 @@ import AuthService from '../../../services/auth';
 
 const router = express.Router();
 
+router.get('/nickname/:nickname', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const authServiceInstance = Container.get(AuthService);
+    const { httpStatusCode, data, message } = await authServiceInstance.verifyNicknameService(req.params.nickname);
+
+    return res.status(httpStatusCode).json({
+      data, message,
+    });
+  } catch (err) {
+    logger.error(`[${req.method}] '${req.originalUrl}'`, err);
+    return next(err);
+  }
+});
+
 router.post('/sign-up', isNotLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const authServiceInstance = Container.get(AuthService);
