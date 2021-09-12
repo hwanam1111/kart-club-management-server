@@ -34,4 +34,17 @@ router.get('/my', async (req: express.Request, res: express.Response, next: expr
   }
 });
 
+router.get('/find/email', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const usersServiceInstance = Container.get(UsersService);
+    const { httpStatusCode, data, message } = await usersServiceInstance.findEmailService(req.query.accessId as string);
+
+    return res.status(httpStatusCode).json({
+      data, message,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 export default router;

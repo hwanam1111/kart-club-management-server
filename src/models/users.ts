@@ -64,4 +64,16 @@ export default class UsersModels {
       throw err;
     }
   }
+
+  public async findEmail(accessId: string): Promise<string> {
+    try {
+      const findEmailSQL = `SELECT REPLACE(email, substring(email, 1, 3),'***') AS email FROM TB_USERS WHERE kartRiderAccessId = '${accessId}'`;
+      const findEmailResult = await selectOne(findEmailSQL);
+
+      return findEmailResult;
+    } catch (err) {
+      logger.error('UsersModels findEmail()', err);
+      throw err;
+    }
+  }
 }

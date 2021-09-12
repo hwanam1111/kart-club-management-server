@@ -78,4 +78,40 @@ export default class UsersService {
       throw err;
     }
   }
+
+  public async findEmailService(accessId: string): Promise<{
+    httpStatusCode: number,
+    data: {
+      email: string
+    } | string,
+    message: string
+  }> {
+    try {
+      if (!accessId || accessId === '') {
+        return {
+          httpStatusCode: 403,
+          data: 'blank-access-id',
+          message: '카트라이더 accessId가 입력되지 않았습니다.',
+        };
+      }
+
+      const findEmail = await this.usersModels.findEmail(accessId);
+      if (!findEmail) {
+        return {
+          httpStatusCode: 403,
+          data: 'no-user-info',
+          message: '해당 닉네임으로 가입한 정보가 없습니다.',
+        };
+      }
+
+      return {
+        httpStatusCode: 200,
+        data: findEmail,
+        message: '사용 가능한 이메일입니다.',
+      };
+    } catch (err) {
+      logger.error('UsersService findEmailService()', err);
+      throw err;
+    }
+  }
 }
