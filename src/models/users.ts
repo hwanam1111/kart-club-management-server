@@ -1,4 +1,6 @@
 import mysql from 'mysql2/promise';
+import bcrypt from 'bcryptjs';
+import request from 'request-promise-native';
 
 import mysqlConfig from '../mysql/config';
 import { selectOne } from '../lib/mysqlConnectionPool';
@@ -73,6 +75,29 @@ export default class UsersModels {
       return findEmailResult;
     } catch (err) {
       logger.error('UsersModels findEmail()', err);
+      throw err;
+    }
+  }
+
+  public async findPassword(data: { email: string, accessId: string }): Promise<string> {
+    try {
+      const { email, accessId } = data;
+      const findUserInfoSQL = `SELECT id FROM TB_USERS WHERE email = '${email}' AND kartRiderAccessId = '${accessId}'`;
+      const findUserInfoResult = await selectOne(findUserInfoSQL);
+
+      if (!findUserInfoResult) {
+        return 'no-user-info';
+      }
+
+      const userId = findUserInfoResult.id;
+      const newPassword = Math.random().toString(36).substr(2, 11);
+      const hashedPassword = bcrypt.hashSync(newPassword, 11);
+      const updateNewPasswordSQL = `UPDATE TB_USERS SET password = '${hashedPassword}' WHERE id = ${userId}`;
+      await pool.execute(updateNewPasswordSQL);
+
+      return newPassword;
+    } catch (err) {
+      logger.error('UsersModels findPassword()', err);
       throw err;
     }
   }

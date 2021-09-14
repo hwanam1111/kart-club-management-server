@@ -47,4 +47,17 @@ router.get('/find/email', async (req: express.Request, res: express.Response, ne
   }
 });
 
+router.get('/find/password', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const usersServiceInstance = Container.get(UsersService);
+    const { httpStatusCode, data, message } = await usersServiceInstance.findPasswordService(req.query as any);
+
+    return res.status(httpStatusCode).json({
+      data, message,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 export default router;

@@ -1,4 +1,5 @@
 import express from 'express';
+import nodemailer from 'nodemailer';
 import { Service } from 'typedi';
 import { UserType } from '../types/usersType';
 
@@ -87,7 +88,7 @@ export default class UsersService {
     message: string
   }> {
     try {
-      if (!accessId || accessId === '') {
+      if (!accessId) {
         return {
           httpStatusCode: 403,
           data: 'blank-access-id',
@@ -107,10 +108,73 @@ export default class UsersService {
       return {
         httpStatusCode: 200,
         data: findEmail,
-        message: '사용 가능한 이메일입니다.',
+        message: '이메일 찾기가 완료되었습니다.',
       };
     } catch (err) {
       logger.error('UsersService findEmailService()', err);
+      throw err;
+    }
+  }
+
+  public async findPasswordService(data: { email: string, accessId: string }): Promise<{
+    httpStatusCode: number,
+    data: string,
+    message: string
+  }> {
+    try {
+      const { email, accessId } = data;
+
+      if (!email) {
+        return {
+          httpStatusCode: 403,
+          data: 'blank-email-id',
+          message: '이메일이 입력되지 않았습니다.',
+        };
+      }
+
+      if (!accessId) {
+        return {
+          httpStatusCode: 403,
+          data: 'blank-access-id',
+          message: '카트라이더 accessId가 입력되지 않았습니다.',
+        };
+      }
+
+      const findPassword = await this.usersModels.findPassword(data);
+      if (findPassword === 'no-user-info') {
+        return {
+          httpStatusCode: 403,
+          data: 'no-user-info',
+          message: '입력한 이메일과 닉네임에 일치하는 회원님의 정보가 없습니다.',
+        };
+      }
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: process.env.SMTP_HOST,
+        tls: { minVersion: 'TLSv1' },
+        auth: {
+          user: process.env.SMTP_EMAIL,
+          pass: process.env.SMTP_PASSWORD,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"카트라이더 클럽 매니저" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: '[Kartrider club management] 비밀번호 변경',
+        html: `새로 변경된 비밀번호는 아래와 같습니다.<br/>${findPassword}<br/><br/>내 정보 수정에 들어가서 새로 비밀번호를 바꿔주세요!`,
+      });
+
+      nodemailer.getTestMessageUrl(info);
+
+      return {
+        httpStatusCode: 200,
+        data: 'find-password-success',
+        message: '비밀번호 찾기가 완료되었습니다.',
+      };
+    } catch (err) {
+      logger.error('UsersService findPasswordService()', err);
       throw err;
     }
   }
