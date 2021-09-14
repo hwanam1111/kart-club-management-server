@@ -17,7 +17,7 @@ export default function passportConfig() {
     try {
       const getUserInfoSQL = `
         SELECT
-        id, kartRiderAccessId, email, clubId, nickname, profileImageUri, rating, isWithdrawal
+        id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
         FROM TB_USERS
         WHERE id = ${login.id}
       `;

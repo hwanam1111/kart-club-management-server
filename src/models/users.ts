@@ -1,6 +1,5 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
-import request from 'request-promise-native';
 
 import mysqlConfig from '../mysql/config';
 import { selectOne } from '../lib/mysqlConnectionPool';
@@ -22,9 +21,9 @@ export default class UsersModels {
     }
   }
 
-  public async existingUserCheck(email: string, nickname: string): Promise<{ id: number } | undefined> {
+  public async existingUserCheck(email: string, accessId: string): Promise<{ id: number } | undefined> {
     try {
-      const existingUserCheckSQL = `SELECT id FROM TB_USERS WHERE email = '${email}' OR nickname = '${nickname}'`;
+      const existingUserCheckSQL = `SELECT id FROM TB_USERS WHERE email = '${email}' OR kartRiderAccessId = '${accessId}'`;
       const existingUserCheckResult = await selectOne(existingUserCheckSQL);
 
       return existingUserCheckResult;
@@ -34,27 +33,11 @@ export default class UsersModels {
     }
   }
 
-  public async signUp(data: {email: string, hashedPassword: string, nickname: string, accessId: string }): Promise<void> {
-    try {
-      const { email, hashedPassword, nickname, accessId } = data;
-      const addUserSQL = `INSERT INTO TB_USERS (
-        kartRiderAccessId, email, password, nickname, createdAt
-      ) VALUES (
-        '${accessId}', '${email}', '${hashedPassword}', '${nickname}', NOW()
-      )`;
-
-      await pool.execute(addUserSQL);
-    } catch (err) {
-      logger.error('UsersModels signUp()', err);
-      throw err;
-    }
-  }
-
   public async getMyInformation(userId: number): Promise<UserType> {
     try {
       const getUserInfoSQL = `
           SELECT
-          id, kartRiderAccessId, email, clubId, nickname, profileImageUri, rating, isWithdrawal
+          id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
           FROM TB_USERS
           WHERE id = ${userId}
         `;

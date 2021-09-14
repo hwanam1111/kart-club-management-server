@@ -6,13 +6,13 @@ import logger from '../../config/winston';
 const pool = mysql.createPool(mysqlConfig);
 
 export default class AuthModels {
-  public async signUp(data: {email: string, hashedPassword: string, nickname: string, accessId: string }): Promise<void> {
+  public async signUp(data: {email: string, hashedPassword: string, accessId: string }): Promise<void> {
     try {
-      const { email, hashedPassword, nickname, accessId } = data;
+      const { email, hashedPassword, accessId } = data;
       const addUserSQL = `INSERT INTO TB_USERS (
-        kartRiderAccessId, email, password, nickname, createdAt
+        kartRiderAccessId, email, password, createdAt
       ) VALUES (
-        '${accessId}', '${email}', '${hashedPassword}', '${nickname}', NOW()
+        '${accessId}', '${email}', '${hashedPassword}', NOW()
       )`;
 
       await pool.execute(addUserSQL);
