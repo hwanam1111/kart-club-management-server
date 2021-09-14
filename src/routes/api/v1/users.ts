@@ -3,6 +3,8 @@ import express from 'express';
 import { Container } from 'typedi';
 
 import logger from '../../../../config/winston';
+import isLoggedIn from '../../middlewares/isLoggedIn';
+import isNotLoggedIn from '../../middlewares/isNotLoggedIn';
 import UsersService from '../../../services/users';
 
 const router = express.Router();
@@ -34,7 +36,7 @@ router.get('/my', async (req: express.Request, res: express.Response, next: expr
   }
 });
 
-router.get('/find/email', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/find/email', isNotLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const usersServiceInstance = Container.get(UsersService);
     const { httpStatusCode, data, message } = await usersServiceInstance.findEmailService(req.query.accessId as string);
@@ -47,7 +49,7 @@ router.get('/find/email', async (req: express.Request, res: express.Response, ne
   }
 });
 
-router.get('/find/password', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/find/password', isNotLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const usersServiceInstance = Container.get(UsersService);
     const { httpStatusCode, data, message } = await usersServiceInstance.findPasswordService(req.query as any);
