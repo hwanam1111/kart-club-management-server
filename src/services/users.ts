@@ -1,5 +1,6 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
+import request from 'request-promise-native';
 import { Service } from 'typedi';
 import { UserType } from '../types/usersType';
 
@@ -43,9 +44,9 @@ export default class UsersService {
   }
 
   public async getMyInformationService(req: express.Request): Promise<{
-    httpStatusCode: number,
-    data: UserType | string,
-    message: string
+    userInfoHttpStatusCode: number,
+    userInfoData: UserType | string,
+    userInfoMessage: string
   }> {
     try {
       if (req.user) {
@@ -54,25 +55,25 @@ export default class UsersService {
           req.session.destroy(null);
 
           return {
-            httpStatusCode: 200,
-            data: 'no-user-info',
-            message: '로그인이 되어있지 않습니다.',
+            userInfoHttpStatusCode: 200,
+            userInfoData: 'no-user-info',
+            userInfoMessage: '로그인이 되어있지 않습니다.',
           };
         }
 
         const myInformation = await this.usersModels.getMyInformation(req.user.id);
 
         return {
-          httpStatusCode: 200,
-          data: myInformation,
-          message: '내 정보를 성공적으로 불러왔습니다.',
+          userInfoHttpStatusCode: 200,
+          userInfoData: myInformation,
+          userInfoMessage: '내 정보를 성공적으로 불러왔습니다.',
         };
       }
 
       return {
-        httpStatusCode: 200,
-        data: 'no-user-info',
-        message: '로그인이 되어있지 않습니다.',
+        userInfoHttpStatusCode: 200,
+        userInfoData: 'no-user-info',
+        userInfoMessage: '로그인이 되어있지 않습니다.',
       };
     } catch (err) {
       logger.error('UsersService checkEmailDuplicateService()', err);
@@ -175,6 +176,66 @@ export default class UsersService {
       };
     } catch (err) {
       logger.error('UsersService findPasswordService()', err);
+      throw err;
+    }
+  }
+
+  public async loadUserNicknameService(accessId: string): Promise<{
+    loadNicknameHttpStatusCode: number,
+    loadNicknameData: any,
+    loadNicknameMessage: string
+  }> {
+    try {
+      if (!accessId) {
+        return {
+          loadNicknameHttpStatusCode: 403,
+          loadNicknameData: 'blank-access-id',
+          loadNicknameMessage: '카트라이더 accessId가 입력되지 않았습니다.',
+        };
+      }
+
+      const requestOptions = {
+        method: 'GET',
+        json: true,
+        uri: `https://api.nexon.co.kr/kart/v1.0/users/${encodeURI(accessId)}`,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: process.env.NEXON_DEVELOPERS_API_KEY,
+        },
+      };
+
+      let getKartRiderUserInfo: () => any;
+      try {
+        getKartRiderUserInfo = await request(requestOptions, (error, response, body) => {
+          if (!error && response.statusCode === 200) {
+            return body;
+          }
+
+          return error;
+        });
+      } catch (err) {
+        if (err.statusCode === 404) {
+          return {
+            loadNicknameHttpStatusCode: 200,
+            loadNicknameData: 'no-nickname',
+            loadNicknameMessage: '현재 카트라이더 닉네임에 존재하지 않는 유저입니다.',
+          };
+        }
+
+        return {
+          loadNicknameHttpStatusCode: err.statusCode,
+          loadNicknameData: 'server-error',
+          loadNicknameMessage: '서버에 오류가 발생하였습니다.',
+        };
+      }
+
+      return {
+        loadNicknameHttpStatusCode: 200,
+        loadNicknameData: getKartRiderUserInfo,
+        loadNicknameMessage: '유저정보를 성공적으로 불러왔습니다.',
+      };
+    } catch (err) {
+      logger.error('UsersService loadUserNicknameService()', err);
       throw err;
     }
   }
