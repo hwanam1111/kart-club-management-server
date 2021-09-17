@@ -4,9 +4,9 @@
   "description": "kart-club-management-server",
   "main": "app.ts",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon -r ts-node src/app.ts",
-    "dev-pm2": "cross-env pm2 start ecosystem.config.js",
-    "start": "cross-env pm2 start ecosystem.config.js --env production"
+    "dev": "cross-env NODE_ENV=development nodemon -r ts-node src/app.ts -p 3200",
+    "dev-pm2": "cross-env pm2 start ecosystem.config.js -p 3200",
+    "start": "cross-env pm2 start ecosystem.config.js --env production -p 3200"
   },
   "author": "LEEJUN KIM",
   "license": "ISC",
