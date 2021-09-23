@@ -32,4 +32,22 @@ router.post('/verify/master/image', isLoggedIn, imageUpload.single('image'),
     }
   });
 
+router.post('/register', isLoggedIn, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const clubServiceInstance = Container.get(ClubService);
+    const { httpStatusCode, data, message } = await clubServiceInstance.clubRegisterService({
+      userId: req.user.id,
+      kartRiderAccessId: req.user.kartRiderAccessId,
+      ...req.body,
+    });
+
+    return res.status(httpStatusCode).json({
+      data, message,
+    });
+  } catch (err) {
+    logger.error(`[${req.method}] '${req.originalUrl}'`, err);
+    return next(err);
+  }
+});
+
 export default router;
