@@ -20,7 +20,7 @@ passportConfig();
 dotenv.config();
 
 const RedisStore = connectRedis(session);
-const { COOKIE_SECRET, NODE_ENV, REDIS_HOST, REDIS_DB, REDIS_PORT, SERVER_POST } = process.env;
+const { COOKIE_SECRET, NODE_ENV, REDIS_HOST, REDIS_DB, REDIS_PORT, SERVER_PORT } = process.env;
 const app = express();
 
 if (NODE_ENV === 'production') {
@@ -80,6 +80,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(routes);
 
-http.createServer(app).listen(SERVER_POST, () => {
+http.createServer(app).listen(SERVER_PORT, () => {
   logger.info('Start server');
 });
