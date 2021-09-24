@@ -2,7 +2,7 @@ import mysql from 'mysql2/promise';
 
 import mysqlConfig from '../mysql/config';
 import logger from '../../config/winston';
-import { selectOne } from '../lib/mysqlConnectionPool';
+import { selectOne, insertAndGetLastId } from '../lib/mysqlConnectionPool';
 
 const pool = mysql.createPool(mysqlConfig);
 
@@ -35,14 +35,16 @@ export default class ClubModels {
           '${clubName}', ${userId}, '${kartRiderAccessId}', '${verifyMasterImageUrl}', NOW()
         )
       `;
-      console.log(addClubSQL);
-      await pool.execute(addClubSQL);
+      const clubId = await insertAndGetLastId(addClubSQL);
+
+      const updateMyClubInfoSQL = `UPDATE TB_USERS SET clubId = ${clubId} WHERE id = ${userId}`;
+      await pool.execute(updateMyClubInfoSQL);
 
       const addClubRegisterApplicationLogSQL = `
         INSERT INTO TB_CLUBS_REGISTER_APPLICATION_LOGS (
           enteredClubName, applicantUserId, resultMessage, createdAt
         ) VALUES (
-          '${clubName}', '${userId}', '클럽 등록 신청완료.', NOW()
+          '${clubName}', ${userId}, '클럽 등록 신청완료.', NOW()
         )
       `;
       await pool.execute(addClubRegisterApplicationLogSQL);
