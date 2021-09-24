@@ -37,7 +37,7 @@ export default class ClubModels {
       `;
       const clubId = await insertAndGetLastId(addClubSQL);
 
-      const updateMyClubInfoSQL = `UPDATE TB_USERS SET clubId = ${clubId} WHERE id = ${userId}`;
+      const updateMyClubInfoSQL = `UPDATE TB_USERS SET clubId = ${clubId}, rating = '클럽 등록 신청 중' WHERE id = ${userId}`;
       await pool.execute(updateMyClubInfoSQL);
 
       const addClubRegisterApplicationLogSQL = `
