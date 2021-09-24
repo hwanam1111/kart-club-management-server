@@ -36,14 +36,26 @@ export default class UsersModels {
   public async getMyInformation(userId: number): Promise<UserType> {
     try {
       const getUserInfoSQL = `
-          SELECT
-          id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
-          FROM TB_USERS
-          WHERE id = ${userId}
-        `;
+        SELECT
+        id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
+        FROM TB_USERS
+        WHERE id = ${userId}
+      `;
       const userInfoResult = await selectOne(getUserInfoSQL);
+      const resultJson = userInfoResult;
 
-      return userInfoResult;
+      if (userInfoResult.clubId) {
+        const getUserClubInfoSQL = `
+          SELECT
+          id, clubName, isVerifiedComplete, isDeleted
+          FROM TB_CLUBS
+          WHERE id = ${userInfoResult.clubId}
+        `;
+        const getUserClubInfoResult = await selectOne(getUserClubInfoSQL);
+        resultJson.club = getUserClubInfoResult;
+      }
+
+      return resultJson;
     } catch (err) {
       logger.error('UsersModels getMyInformation()', err);
       throw err;
