@@ -81,5 +81,8 @@ app.use(passport.session());
 app.use(routes);
 
 http.createServer(app).listen(SERVER_PORT, () => {
+  if (process.send) {
+    process.send('ready');
+  }
   logger.info('Start server');
 });
