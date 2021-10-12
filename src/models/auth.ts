@@ -12,10 +12,10 @@ export default class AuthModels {
       const addUserSQL = `INSERT INTO TB_USERS (
         kartRiderAccessId, email, password, createdAt
       ) VALUES (
-        '${accessId}', '${email}', '${hashedPassword}', NOW()
+        ?, ?, ?, NOW()
       )`;
 
-      await pool.execute(addUserSQL);
+      await pool.execute(addUserSQL, [accessId, email, hashedPassword]);
     } catch (err) {
       logger.error('AuthModels signUp()', err);
       throw err;
@@ -34,10 +34,10 @@ export default class AuthModels {
       const addLoginFailureLogSQL = `INSERT INTO TB_USERS_LOGIN_LOGS (
         enterdEmail, userIp, userAgent, loginResult, failureReason, classification, createdAt
       ) VALUES (
-        '${email}', (SELECT SUBSTRING_INDEX(USER(), '@', -1)), '${userAgent}', ${loginResult}, '${failureReason}', '${classification}', NOW()
+        ?, (SELECT SUBSTRING_INDEX(USER(), '@', -1)), ?, ?, ?, ?, NOW()
       )`;
 
-      await pool.execute(addLoginFailureLogSQL);
+      await pool.execute(addLoginFailureLogSQL, [email, userAgent, loginResult, failureReason, classification]);
     } catch (err) {
       logger.error('AuthModels loginLog()', err);
       throw err;

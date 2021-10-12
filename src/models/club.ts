@@ -16,14 +16,14 @@ export default class ClubModels {
     try {
       const { userId, kartRiderAccessId, clubName, verifyMasterImageUrl } = data;
 
-      const alreadyClubRegisterdApplicationCheckSQL = `SELECT id FROM TB_CLUBS WHERE masterUserId = ${userId}`;
-      const alreadyClubRegisterdApplicationCheckResult = await selectOne(alreadyClubRegisterdApplicationCheckSQL);
+      const alreadyClubRegisterdApplicationCheckSQL = 'SELECT id FROM TB_CLUBS WHERE masterUserId = ?';
+      const alreadyClubRegisterdApplicationCheckResult = await selectOne(alreadyClubRegisterdApplicationCheckSQL, [userId]);
       if (alreadyClubRegisterdApplicationCheckResult) {
         return 'already-application';
       }
 
-      const alreadyClubNameRegisterdCheckSQL = `SELECT id FROM TB_CLUBS WHERE clubName = '${clubName}'`;
-      const alreadyClubNameRegisterdCheckResult = await selectOne(alreadyClubNameRegisterdCheckSQL);
+      const alreadyClubNameRegisterdCheckSQL = 'SELECT id FROM TB_CLUBS WHERE clubName = ?';
+      const alreadyClubNameRegisterdCheckResult = await selectOne(alreadyClubNameRegisterdCheckSQL, [clubName]);
       if (alreadyClubNameRegisterdCheckResult) {
         return 'already-registered-club-name';
       }
@@ -32,22 +32,22 @@ export default class ClubModels {
         INSERT INTO TB_CLUBS (
           clubName, masterUserId, masterAccessId, verifyMasterImageUrl, createdAt
         ) VALUES (
-          '${clubName}', ${userId}, '${kartRiderAccessId}', '${verifyMasterImageUrl}', NOW()
+          ?, ?, ?, ?, NOW()
         )
       `;
-      const clubId = await insertAndGetLastId(addClubSQL);
+      const clubId = await insertAndGetLastId(addClubSQL, [clubName, userId, kartRiderAccessId, verifyMasterImageUrl]);
 
-      const updateMyClubInfoSQL = `UPDATE TB_USERS SET clubId = ${clubId}, rating = '클럽 등록 신청 중' WHERE id = ${userId}`;
-      await pool.execute(updateMyClubInfoSQL);
+      const updateMyClubInfoSQL = 'UPDATE TB_USERS SET clubId = ?, rating = \'클럽 등록 신청 중\' WHERE id = ?';
+      await pool.execute(updateMyClubInfoSQL, [clubId, userId]);
 
       const addClubRegisterApplicationLogSQL = `
         INSERT INTO TB_CLUBS_REGISTER_APPLICATION_LOGS (
           enteredClubName, applicantUserId, resultMessage, createdAt
         ) VALUES (
-          '${clubName}', ${userId}, '클럽 등록 신청완료.', NOW()
+          ?, ?, '클럽 등록 신청완료.', NOW()
         )
       `;
-      await pool.execute(addClubRegisterApplicationLogSQL);
+      await pool.execute(addClubRegisterApplicationLogSQL, [clubName, userId]);
 
       return 'club-register-application-success';
     } catch (err) {

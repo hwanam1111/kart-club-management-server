@@ -19,9 +19,9 @@ export default function passportConfig() {
         SELECT
         id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
         FROM TB_USERS
-        WHERE id = ${login.id}
+        WHERE id = ?
       `;
-      const userInfoResult = await selectOne(getUserInfoSQL);
+      const userInfoResult = await selectOne(getUserInfoSQL, [login.id]);
 
       done(null, userInfoResult);
     } catch (error) {

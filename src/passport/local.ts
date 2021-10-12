@@ -12,8 +12,8 @@ export default function local() {
     passwordField: 'password',
   }, async (email: string, password: string, done: any) => {
     try {
-      const getUserInfoSQL = `SELECT id, email, password, isWithdrawal FROM TB_USERS WHERE email = '${email}'`;
-      const userInfoResult = await selectOne(getUserInfoSQL);
+      const getUserInfoSQL = 'SELECT id, email, password, isWithdrawal FROM TB_USERS WHERE email = ?';
+      const userInfoResult = await selectOne(getUserInfoSQL, [email]);
 
       if (!userInfoResult) {
         return done(null, false, { reason: '이메일이나 비밀번호가 잘못 입력되었습니다.' });

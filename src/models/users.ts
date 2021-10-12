@@ -11,8 +11,8 @@ const pool = mysql.createPool(mysqlConfig);
 export default class UsersModels {
   public async emailDuplicateCheck(email: string): Promise<{ id: number } | undefined> {
     try {
-      const emailDuplicateCheckSQL = `SELECT id FROM TB_USERS WHERE email = '${email}'`;
-      const emailDuplicateCheckResult = await selectOne(emailDuplicateCheckSQL);
+      const emailDuplicateCheckSQL = 'SELECT id FROM TB_USERS WHERE email = ?';
+      const emailDuplicateCheckResult = await selectOne(emailDuplicateCheckSQL, [email]);
 
       return emailDuplicateCheckResult;
     } catch (err) {
@@ -23,8 +23,8 @@ export default class UsersModels {
 
   public async existingUserCheck(email: string, accessId: string): Promise<{ id: number } | undefined> {
     try {
-      const existingUserCheckSQL = `SELECT id FROM TB_USERS WHERE email = '${email}' OR kartRiderAccessId = '${accessId}'`;
-      const existingUserCheckResult = await selectOne(existingUserCheckSQL);
+      const existingUserCheckSQL = 'SELECT id FROM TB_USERS WHERE email = ? OR kartRiderAccessId = ?';
+      const existingUserCheckResult = await selectOne(existingUserCheckSQL, [email, accessId]);
 
       return existingUserCheckResult;
     } catch (err) {
@@ -39,9 +39,9 @@ export default class UsersModels {
         SELECT
         id, kartRiderAccessId, email, clubId, profileImageUri, rating, isWithdrawal
         FROM TB_USERS
-        WHERE id = ${userId}
+        WHERE id = ?
       `;
-      const userInfoResult = await selectOne(getUserInfoSQL);
+      const userInfoResult = await selectOne(getUserInfoSQL, [userId]);
       const resultJson = userInfoResult;
 
       if (userInfoResult.clubId) {
@@ -49,9 +49,9 @@ export default class UsersModels {
           SELECT
           id, clubName, isVerifiedComplete, isDeleted
           FROM TB_CLUBS
-          WHERE id = ${userInfoResult.clubId}
+          WHERE id = ?
         `;
-        const getUserClubInfoResult = await selectOne(getUserClubInfoSQL);
+        const getUserClubInfoResult = await selectOne(getUserClubInfoSQL, [userInfoResult.clubId]);
         resultJson.club = getUserClubInfoResult;
       }
 
@@ -64,8 +64,8 @@ export default class UsersModels {
 
   public async findEmail(accessId: string): Promise<string> {
     try {
-      const findEmailSQL = `SELECT REPLACE(email, substring(email, 1, 3),'***') AS email FROM TB_USERS WHERE kartRiderAccessId = '${accessId}'`;
-      const findEmailResult = await selectOne(findEmailSQL);
+      const findEmailSQL = 'SELECT REPLACE(email, substring(email, 1, 3),\'***\') AS email FROM TB_USERS WHERE kartRiderAccessId = ?';
+      const findEmailResult = await selectOne(findEmailSQL, [accessId]);
 
       return findEmailResult;
     } catch (err) {
@@ -77,8 +77,8 @@ export default class UsersModels {
   public async findPassword(data: { email: string, accessId: string }): Promise<string> {
     try {
       const { email, accessId } = data;
-      const findUserInfoSQL = `SELECT id FROM TB_USERS WHERE email = '${email}' AND kartRiderAccessId = '${accessId}'`;
-      const findUserInfoResult = await selectOne(findUserInfoSQL);
+      const findUserInfoSQL = 'SELECT id FROM TB_USERS WHERE email = ? AND kartRiderAccessId = ?';
+      const findUserInfoResult = await selectOne(findUserInfoSQL, [email, accessId]);
 
       if (!findUserInfoResult) {
         return 'no-user-info';
@@ -87,8 +87,8 @@ export default class UsersModels {
       const userId = findUserInfoResult.id;
       const newPassword = Math.random().toString(36).substr(2, 11);
       const hashedPassword = bcrypt.hashSync(newPassword, 11);
-      const updateNewPasswordSQL = `UPDATE TB_USERS SET password = '${hashedPassword}' WHERE id = ${userId}`;
-      await pool.execute(updateNewPasswordSQL);
+      const updateNewPasswordSQL = 'UPDATE TB_USERS SET password = ? WHERE id = ?';
+      await pool.execute(updateNewPasswordSQL, [hashedPassword, userId]);
 
       return newPassword;
     } catch (err) {
